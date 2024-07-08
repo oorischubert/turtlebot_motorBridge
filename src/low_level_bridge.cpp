@@ -55,8 +55,7 @@ void OdometryProcessor::twistCallback(const geometry_msgs::msg::Twist::SharedPtr
     serial_msg.type = CMD_VEL;
 
     packFloatIntoArray(serial_msg.data, msg->linear.x, 0);
-    packFloatIntoArray(serial_msg.data, msg->linear.y, sizeof(float));
-    packFloatIntoArray(serial_msg.data, msg->angular.z, 2 * sizeof(float));
+    packFloatIntoArray(serial_msg.data, msg->angular.z, sizeof(float));
 
     if (!enqueueMessage(serial_msg)) {
         RCLCPP_WARN(this->get_logger(), "Unable to enqueue CMD_VEL message.");

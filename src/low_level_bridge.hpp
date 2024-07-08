@@ -25,8 +25,10 @@
 #define PARENT_FRAME_ID "base_link"
 
 typedef enum {
+    CMD_POS = 0,
     CMD_VEL = 1,
-    ODOMETRY = 2
+    ODOMETRY = 2,
+    PID = 3,
 } MessageType_e;
 
 typedef struct {

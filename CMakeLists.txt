@@ -13,7 +13,7 @@ find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
-find_package(boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS thread)
 
 # Include directories
 include_directories(include)
@@ -29,7 +29,7 @@ ament_target_dependencies(low_level_bridge
   geometry_msgs 
   tf2 
   tf2_geometry_msgs
-  boost
+  Boost
 )
 
 install(TARGETS
