@@ -10,7 +10,7 @@
 #include <array>
 
 // Serial communication configs
-#define SERIAL_PORT "/dev/ttyUSB1"
+#define SERIAL_PORT "/dev/ttyUSB0" //added to launch file now
 #define BAUD_RATE 115200
 #define HEADER 0xC8
 #define TAIL 0xC7

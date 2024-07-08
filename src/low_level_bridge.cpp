@@ -1,6 +1,7 @@
 #include "low_level_bridge.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
+#include <std_msgs/msg/string.hpp>
 
 void packFloatIntoArray(std::array<uint8_t, SIZE_OF_TX_DATA>& data, float value, size_t offset) {
     if (offset + sizeof(float) <= data.size()) {
@@ -9,7 +10,7 @@ void packFloatIntoArray(std::array<uint8_t, SIZE_OF_TX_DATA>& data, float value,
 }
 
 OdometryProcessor::OdometryProcessor()
-    : Node("odometry_processor"), serial_(io_), serial_port_(SERIAL_PORT), baud_rate_(BAUD_RATE) {
+    : Node("odometry_processor"), serial_(io_), serial_port_(declare_parameter<std::string>("device", SERIAL_PORT)), baud_rate_(BAUD_RATE) {
 
     // Setup ROS publishers and subscribers
     odometry_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(PUBLISHED_ODOMETRY_TOPIC_NAME, 10);
@@ -17,11 +18,18 @@ OdometryProcessor::OdometryProcessor()
     odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(SUBSCRIBED_ODOMETRY_TOPIC_NAME, 10, std::bind(&OdometryProcessor::odometryCallback, this, std::placeholders::_1));
 
     // Setup serial port
+    try {
     serial_.open(serial_port_);
     serial_.set_option(boost::asio::serial_port_base::baud_rate(baud_rate_));
-
+    RCLCPP_INFO(this->get_logger(), "Successfully connected to USB port: %s", serial_port_.c_str());
+    } catch (const boost::system::system_error& e) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to open serial port: %s", e.what());
+    throw;
+    }
     // Start the serial communication thread
     serial_thread_ = boost::thread(boost::bind(&OdometryProcessor::serialThread, this));
+    // Send startup message
+    RCLCPP_INFO(this->get_logger(), "OdometryProcessor started successfully");
 }
 
 OdometryProcessor::~OdometryProcessor() {
@@ -56,10 +64,11 @@ void OdometryProcessor::twistCallback(const geometry_msgs::msg::Twist::SharedPtr
 
     packFloatIntoArray(serial_msg.data, msg->linear.x, 0);
     packFloatIntoArray(serial_msg.data, msg->angular.z, sizeof(float));
-
+    //RCLCPP_INFO(this->get_logger(), "Sending %f, %f", msg->linear.x, msg->angular.z);
     if (!enqueueMessage(serial_msg)) {
         RCLCPP_WARN(this->get_logger(), "Unable to enqueue CMD_VEL message.");
     }
+    
 }
 
 void OdometryProcessor::odometryCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
@@ -139,7 +148,7 @@ void OdometryProcessor::sendSerialData(const SerialMessage_t& msg) {
 
     // Compute checksum
     uint8_t checksum = 0;
-    for (size_t i = 2; i < SIZE_OF_TX_DATA - 2; ++i) {
+    for (size_t i = 3; i < SIZE_OF_TX_DATA - 2; ++i) {
         checksum += buffer[i];
     }
 
