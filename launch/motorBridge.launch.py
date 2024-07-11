@@ -8,7 +8,7 @@ def generate_launch_description():
             namespace='motorBridge',
             executable='low_level_bridge',
             name='low_level_bridge',
-            parameters=[{'device': '/dev/ttyUSB0'}],
+            parameters=[{'device': '/dev/ttyUSB_esp32'}],
             output='screen',
             respawn=False,
             respawn_delay=2.0,
