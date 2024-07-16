@@ -36,7 +36,7 @@ typedef struct {
     std::array<uint8_t, SIZE_OF_TX_DATA> data;
 } SerialMessage_t;
 
-class OdometryProcessor : public rclcpp::Node {
+class DiffDriveTurtlebot : public rclcpp::Node {
 public:
     OdometryProcessor();
     ~OdometryProcessor();

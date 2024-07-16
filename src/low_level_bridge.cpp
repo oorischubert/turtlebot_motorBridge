@@ -9,13 +9,13 @@ void packFloatIntoArray(std::array<uint8_t, SIZE_OF_TX_DATA>& data, float value,
     }
 }
 
-OdometryProcessor::OdometryProcessor()
+DiffDriveTurtlebot::DiffDriveTurtlebot()
     : Node("odometry_processor"), serial_(io_), serial_port_(declare_parameter<std::string>("device", SERIAL_PORT)), baud_rate_(BAUD_RATE) {
 
     // Setup ROS publishers and subscribers
     odometry_pub_ = this->create_publisher<nav_msgs::msg::Odometry>(PUBLISHED_ODOMETRY_TOPIC_NAME, 10);
-    twist_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(SUBSCRIBED_TWIST_TOPIC_NAME, 10, std::bind(&OdometryProcessor::twistCallback, this, std::placeholders::_1));
-    odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(SUBSCRIBED_ODOMETRY_TOPIC_NAME, 10, std::bind(&OdometryProcessor::odometryCallback, this, std::placeholders::_1));
+    twist_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(SUBSCRIBED_TWIST_TOPIC_NAME, 10, std::bind(&DiffDriveTurtlebot::twistCallback, this, std::placeholders::_1));
+    odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(SUBSCRIBED_ODOMETRY_TOPIC_NAME, 10, std::bind(&DiffDriveTurtlebot::odometryCallback, this, std::placeholders::_1));
 
     // Setup serial port
     try {
@@ -27,18 +27,18 @@ OdometryProcessor::OdometryProcessor()
     throw;
     }
     // Start the serial communication thread
-    serial_thread_ = boost::thread(boost::bind(&OdometryProcessor::serialThread, this));
+    serial_thread_ = boost::thread(boost::bind(&DiffDriveTurtlebot::serialThread, this));
     // Send startup message
     RCLCPP_INFO(this->get_logger(), "OdometryProcessor started successfully");
 }
 
-OdometryProcessor::~OdometryProcessor() {
+DiffDriveTurtlebot::~DiffDriveTurtlebot() {
     io_.stop();
     serial_thread_.join();
     serial_.close();
 }
 
-bool OdometryProcessor::enqueueMessage(const SerialMessage_t& msg) {
+bool DiffDriveTurtlebot::enqueueMessage(const SerialMessage_t& msg) {
     if (!message_queue_.push(msg)) {
         // Queue is full, pop one item to make space
        
@@ -58,7 +58,7 @@ bool OdometryProcessor::enqueueMessage(const SerialMessage_t& msg) {
     return true;
 }
 
-void OdometryProcessor::twistCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
+void DiffDriveTurtlebot::twistCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
     SerialMessage_t serial_msg;
     serial_msg.type = CMD_VEL;
 
@@ -71,7 +71,7 @@ void OdometryProcessor::twistCallback(const geometry_msgs::msg::Twist::SharedPtr
     
 }
 
-void OdometryProcessor::odometryCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
+void DiffDriveTurtlebot::odometryCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
     SerialMessage_t serial_msg;
     serial_msg.type = ODOMETRY;
     
@@ -108,7 +108,7 @@ void OdometryProcessor::odometryCallback(const nav_msgs::msg::Odometry::SharedPt
     }
 }
 
-void OdometryProcessor::serialThread() {
+void DiffDriveTurtlebot::serialThread() {
     std::vector<uint8_t> read_buffer(SIZE_OF_RX_DATA, 0);
 
     while (rclcpp::ok()) {
@@ -133,7 +133,7 @@ void OdometryProcessor::serialThread() {
 }
 
 
-void OdometryProcessor::sendSerialData(const SerialMessage_t& msg) {
+void DiffDriveTurtlebot::sendSerialData(const SerialMessage_t& msg) {
     std::array<uint8_t, SIZE_OF_TX_DATA> buffer;
 
     // Set headers
@@ -160,7 +160,7 @@ void OdometryProcessor::sendSerialData(const SerialMessage_t& msg) {
     boost::asio::write(serial_, boost::asio::buffer(buffer, SIZE_OF_TX_DATA));
 }
 
-void OdometryProcessor::processReceivedData(const std::vector<uint8_t>& buffer) {
+void DiffDriveTurtlebot::processReceivedData(const std::vector<uint8_t>& buffer) {
     if (buffer[0] == HEADER && buffer[1] == HEADER && buffer[SIZE_OF_RX_DATA - 1] == TAIL) {
         uint8_t checksum = 0;
         for (size_t i = 2; i < SIZE_OF_RX_DATA - 2; i++) {
@@ -209,7 +209,7 @@ void OdometryProcessor::processReceivedData(const std::vector<uint8_t>& buffer) 
     }
 }
 
-void OdometryProcessor::spin() {
+void DiffDriveTurtlebot::spin() {
     rclcpp::Rate rate(10); // 10 Hz
     while (rclcpp::ok()) {
         rclcpp::spin_some(this->get_node_base_interface());
@@ -219,7 +219,7 @@ void OdometryProcessor::spin() {
 
 int main(int argc, char **argv) {
     rclcpp::init(argc, argv);
-    auto processor = std::make_shared<OdometryProcessor>();
+    auto processor = std::make_shared<DiffDriveTurtlebot>();
     processor->spin();
     rclcpp::shutdown();
     return 0;
