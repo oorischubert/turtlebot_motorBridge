@@ -1,17 +1,9 @@
-#include "diffdrive_arduino/diffdrive_arduino.h"
-
-
+#include "turtlebot_motorBridge/diffdrive_turtlebot.h"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 
-
-
-
 DiffDriveTurtlebot::DiffDriveTurtlebot()
-    : logger_(rclcpp::get_logger("DiffDriveArduino"))
+    : logger_(rclcpp::get_logger("DiffDriveTurtlebot"))
 {}
-
-
-
 
 
 return_type DiffDriveTurtlebot::configure(const hardware_interface::HardwareInfo & info)
@@ -37,7 +29,7 @@ return_type DiffDriveTurtlebot::configure(const hardware_interface::HardwareInfo
   r_wheel_.setup(cfg_.right_wheel_name, cfg_.enc_counts_per_rev);
 
   // Set up the Arduino
-  arduino_.setup(cfg_.device, cfg_.baud_rate, cfg_.timeout);  
+  esp_.setup(cfg_.device, cfg_.baud_rate, cfg_.timeout);  
 
   RCLCPP_INFO(logger_, "Finished Configuration");
 
@@ -76,11 +68,7 @@ return_type DiffDriveTurtlebot::start()
 {
   RCLCPP_INFO(logger_, "Starting Controller...");
 
-  arduino_.sendEmptyMsg();
-  // arduino.setPidValues(9,7,0,100);
-  // arduino.setPidValues(14,7,0,100);
-  arduino_.setPidValues(30, 20, 0, 100);
-
+  //esp_.setPidValues(60.0, 0.05, 1.0, 100.0); //not neccesary atm but should work
   status_ = hardware_interface::status::STARTED;
 
   return return_type::OK;
@@ -96,62 +84,50 @@ return_type DiffDriveTurtlebot::stop()
 
 hardware_interface::return_type DiffDriveTurtlebot::read()
 {
-
-  // TODO fix chrono duration
-
-  // Calculate time delta
-  auto new_time = std::chrono::system_clock::now();
-  std::chrono::duration<double> diff = new_time - time_;
-  double deltaSeconds = diff.count();
-  time_ = new_time;
-
-
-  if (!arduino_.connected())
+  std::vector<uint8_t> read_buffer(SIZE_OF_RX_DATA, 0);
+  boost::system::error_code ec;
+  if (ec)
   {
     return return_type::ERROR;
   }
 
-  arduino_.readEncoderValues(l_wheel_.enc, r_wheel_.enc);
+  size_t len = boost::asio::read(serial_, boost::asio::buffer(read_buffer), boost::asio::transfer_at_least(1), ec);
+        
+  if (len > 0) {
+     processReceivedData(read_buffer,l_wheel, r_wheel);
+  } 
+
 
   double pos_prev = l_wheel_.pos;
   l_wheel_.pos = l_wheel_.calcEncAngle();
-  l_wheel_.vel = (l_wheel_.pos - pos_prev) / deltaSeconds;
 
   pos_prev = r_wheel_.pos;
   r_wheel_.pos = r_wheel_.calcEncAngle();
-  r_wheel_.vel = (r_wheel_.pos - pos_prev) / deltaSeconds;
 
 
 
   return return_type::OK;
 
-  
 }
 
 hardware_interface::return_type DiffDriveTurtlebot::write()
 {
 
-  if (!arduino_.connected())
+  boost::system::error_code ec;
+  if (ec)
   {
     return return_type::ERROR;
   }
 
-  arduino_.setMotorValues(l_wheel_.cmd / l_wheel_.rads_per_count / cfg_.loop_rate, r_wheel_.cmd / r_wheel_.rads_per_count / cfg_.loop_rate);
-
-
-
+  esp_.setMotorValues(l_wheel_.cmd / l_wheel_.rads_per_count / cfg_.loop_rate, r_wheel_.cmd / r_wheel_.rads_per_count / cfg_.loop_rate);
 
   return return_type::OK;
 
-
-  
 }
-
-
 
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  DiffDriveArduino,
+  DiffDriveTurtlebot,
   hardware_interface::SystemInterface
 )

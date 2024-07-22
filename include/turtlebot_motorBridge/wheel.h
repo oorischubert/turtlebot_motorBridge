@@ -1,5 +1,5 @@
-#ifndef DIFFDRIVE_ARDUINO_WHEEL_H
-#define DIFFDRIVE_ARDUINO_WHEEL_H
+#ifndef DIFFDRIVE_TURTLEBOT_WHEEL_H
+#define DIFFDRIVE_TURTLEBOT_WHEEL_H
 
 #include <string>
 
@@ -26,9 +26,6 @@ class Wheel
 
     double calcEncAngle();
 
-
-
 };
 
-
-#endif // DIFFDRIVE_ARDUINO_WHEEL_H
+#endif // DIFFDRIVE_TURTLEBOT_WHEEL_H

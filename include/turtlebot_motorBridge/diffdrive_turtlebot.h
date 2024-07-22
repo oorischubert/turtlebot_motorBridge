@@ -1,7 +1,6 @@
-#ifndef DIFFDRIVE_ARDUINO_REAL_ROBOT_H
-#define DIFFDRIVE_ARDUINO_REAL_ROBOT_H
+#ifndef DIFFDRIVE_TURTLEBOT_REAL_ROBOT_H
+#define DIFFDRIVE_TURTLEBOT_REAL_ROBOT_H
 
-#include <cstring>
 #include "rclcpp/rclcpp.hpp"
 
 #include "hardware_interface/base_interface.hpp"
@@ -44,7 +43,7 @@ public:
 private:
 
   Config cfg_;
-  ArduinoComms arduino_;
+  EspComms esp_;
 
   Wheel l_wheel_;
   Wheel r_wheel_;
@@ -56,4 +55,4 @@ private:
 };
 
 
-#endif // DIFFDRIVE_ARDUINO_REAL_ROBOT_H
+#endif // DIFFDRIVE_TURTLEBOT_REAL_ROBOT_H
