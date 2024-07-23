@@ -6,8 +6,8 @@ def generate_launch_description():
         Node(
             package='turtlebot_motorBridge',
             namespace='motorBridge',
-            executable='low_level_bridge',
-            name='low_level_bridge',
+            executable='diffdrive_turtlebot',
+            name='diffdrive_turtlebot',
             parameters=[{'device': '/dev/ttyUSB_esp32'}],
             output='screen',
             respawn=False,
