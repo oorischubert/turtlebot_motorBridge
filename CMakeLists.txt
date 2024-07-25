@@ -5,63 +5,64 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# Find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(hardware_interface REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(Boost REQUIRED COMPONENTS thread)
-find_package(controller_manager REQUIRED)
-find_package(pluginlib REQUIRED)
-
-# Create libraries
-add_library(diffdrive_turtlebot SHARED src/diffdrive_turtlebot.cpp src/wheel.cpp src/esp_comms.cpp)
-add_library(fake_robot SHARED src/fake_robot.cpp src/wheel.cpp)
-
-# Include directories
-target_include_directories(
-  diffdrive_turtlebot
-  PRIVATE
-  include
-  ${hardware_interface_INCLUDE_DIRS}
-)
-
-target_include_directories(
-  fake_robot
-  PRIVATE
-  include
-  ${hardware_interface_INCLUDE_DIRS}
-)
-
-# Link libraries
-ament_target_dependencies(
-  diffdrive_turtlebot 
-  rclcpp 
+set(THIS_PACKAGE_INCLUDE_DEPENDS
   hardware_interface
-  std_msgs 
-  nav_msgs 
-  geometry_msgs 
-  tf2 
-  tf2_geometry_msgs
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
   Boost
 )
 
+# Find dependencies
+#find_package(ament_cmake REQUIRED)
+#find_package(rclcpp REQUIRED)
+#find_package(rclcpp_lifecycle REQUIRED)
+#find_package(pluginlib REQUIRED)
+#find_package(std_msgs REQUIRED)
+#find_package(hardware_interface REQUIRED)
+#find_package(Boost REQUIRED COMPONENTS thread)
+
+find_package(ament_cmake REQUIRED)
+foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
+  find_package(${Dependency} REQUIRED)
+endforeach()
+
+## COMPILE
+add_library(
+  turtlebot_motorBridge
+  SHARED
+  src/low_level_bridge.cpp
+)
+target_compile_features(turtlebot_motorBridge PUBLIC cxx_std_17)
+target_include_directories(turtlebot_motorBridge PUBLIC
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+$<INSTALL_INTERFACE:include/turtlebot_motorBridge>
+)
 ament_target_dependencies(
-  fake_robot
-  hardware_interface
-  controller_manager
-  rclcpp
-  pluginlib
+  turtlebot_motorBridge PUBLIC
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 
-pluginlib_export_plugin_description_file(hardware_interface robot_hardware.xml)
+# Include directories
+#include_directories(include)
+
+# Add executable
+#add_executable(low_level_bridge src/low_level_bridge.cpp)
+
+# Link libraries
+#ament_target_dependencies(low_level_bridge 
+#  rclcpp 
+#  std_msgs 
+#  tf2 
+#  tf2_geometry_msgs
+#  Boost
+#)
+
+# Export hardware plugins
+pluginlib_export_plugin_description_file(hardware_interface turtlebot_motorBridge.xml)
 
 install(TARGETS
-  diffdrive_turtlebot fake_robot
+  turtlebot_motorBridge
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch/
