@@ -5,8 +5,8 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 
-#define SIZE_OF_TX_DATA 52;
-#define SIZE_OF_RX_DATA 52;
+#define SIZE_OF_TX_DATA 52
+#define SIZE_OF_RX_DATA 52
 typedef enum {
     CMD_POS = 0,
     CMD_VEL = 1,
