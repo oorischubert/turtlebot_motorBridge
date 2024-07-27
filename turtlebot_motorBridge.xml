@@ -1,9 +1,0 @@
-<library path="turtlebot_motorBridge">
-  <class name="turtlebot_motorBridge/MotorBridge"
-         type="turtlebot_motorBridge::MotorBridge"
-         base_class_type="hardware_interface::SystemInterface">
-    <description>
-      This is the motro interface for teh Astrom Turtlebot.
-    </description>
-  </class>
-</library>

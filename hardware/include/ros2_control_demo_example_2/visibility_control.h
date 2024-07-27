@@ -19,37 +19,38 @@
  * library cannot have, but the consuming code must have inorder to link.
  */
 
-#ifndef TURTLEBOT_MOTORBRIDGE__VISIBILITY_CONTROL_H_
-#define TURTLEBOT_MOTORBRIDGE__VISIBILITY_CONTROL_H_
+#ifndef ROS2_CONTROL_DEMO_EXAMPLE_2__VISIBILITY_CONTROL_H_
+#define ROS2_CONTROL_DEMO_EXAMPLE_2__VISIBILITY_CONTROL_H_
 
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
+
 #if defined _WIN32 || defined __CYGWIN__
 #ifdef __GNUC__
-#define TURTLEBOT_MOTORBRIDGE_EXPORT __attribute__((dllexport))
-#define TURTLEBOT_MOTORBRIDGE_IMPORT __attribute__((dllimport))
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_EXPORT __attribute__((dllexport))
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_IMPORT __attribute__((dllimport))
 #else
-#define TURTLEBOT_MOTORBRIDGE_EXPORT __declspec(dllexport)
-#define TURTLEBOT_MOTORBRIDGE_IMPORT __declspec(dllimport)
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_EXPORT __declspec(dllexport)
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_IMPORT __declspec(dllimport)
 #endif
-#ifdef TURTLEBOT_MOTORBRIDGE_BUILDING_DLL
-#define TURTLEBOT_MOTORBRIDGE_PUBLIC TURTLEBOT_MOTORBRIDGE_EXPORT
+#ifdef ROS2_CONTROL_DEMO_EXAMPLE_2_BUILDING_DLL
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC ROS2_CONTROL_DEMO_EXAMPLE_2_EXPORT
 #else
-#define TURTLEBOT_MOTORBRIDGE_PUBLIC TURTLEBOT_MOTORBRIDGE_IMPORT
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC ROS2_CONTROL_DEMO_EXAMPLE_2_IMPORT
 #endif
-#define TURTLEBOT_MOTORBRIDGE_PUBLIC_TYPE TURTLEBOT_MOTORBRIDGE_PUBLIC
-#define TURTLEBOT_MOTORBRIDGE_LOCAL
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC_TYPE ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_LOCAL
 #else
-#define TURTLEBOT_MOTORBRIDGE_EXPORT __attribute__((visibility("default")))
-#define TURTLEBOT_MOTORBRIDGE_IMPORT
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_EXPORT __attribute__((visibility("default")))
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_IMPORT
 #if __GNUC__ >= 4
-#define TURTLEBOT_MOTORBRIDGE_PUBLIC __attribute__((visibility("default")))
-#define TURTLEBOT_MOTORBRIDGE_LOCAL __attribute__((visibility("hidden")))
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC __attribute__((visibility("default")))
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_LOCAL __attribute__((visibility("hidden")))
 #else
-#define TURTLEBOT_MOTORBRIDGE_PUBLIC
-#define TURTLEBOT_MOTORBRIDGE_LOCAL
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_LOCAL
 #endif
-#define TURTLEBOT_MOTORBRIDGE_PUBLIC_TYPE
+#define ROS2_CONTROL_DEMO_EXAMPLE_2_PUBLIC_TYPE
 #endif
 
-#endif  // TURTLEBOT_MOTORBRIDGE__VISIBILITY_CONTROL_H_
+#endif  // ROS2_CONTROL_DEMO_EXAMPLE_2__VISIBILITY_CONTROL_H_

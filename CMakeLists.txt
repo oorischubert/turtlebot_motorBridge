@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.8)
-project(turtlebot_motorBridge)
+cmake_minimum_required(VERSION 3.16)
+project(ros2_control_demo_example_2 LANGUAGES CXX)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+  add_compile_options(-Wall -Wextra)
 endif()
 
+# find dependencies
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   hardware_interface
   pluginlib
@@ -13,72 +14,54 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   Boost
 )
 
-# Find dependencies
-#find_package(ament_cmake REQUIRED)
-#find_package(rclcpp REQUIRED)
-#find_package(rclcpp_lifecycle REQUIRED)
-#find_package(pluginlib REQUIRED)
-#find_package(std_msgs REQUIRED)
-#find_package(hardware_interface REQUIRED)
-#find_package(Boost REQUIRED COMPONENTS thread)
-
+# find dependencies
 find_package(ament_cmake REQUIRED)
 foreach(Dependency IN ITEMS ${THIS_PACKAGE_INCLUDE_DEPENDS})
-  find_package(${Dependency} REQUIRED)
+  if(${Dependency} STREQUAL "Boost")
+    find_package(${Dependency} REQUIRED COMPONENTS thread)
+  else()
+    find_package(${Dependency} REQUIRED)
+  endif()
 endforeach()
+
 
 ## COMPILE
 add_library(
-  turtlebot_motorBridge
+  ros2_control_demo_example_2
   SHARED
-  src/low_level_bridge.cpp
+  hardware/diffbot_system.cpp
 )
-target_compile_features(turtlebot_motorBridge PUBLIC cxx_std_17)
-target_include_directories(turtlebot_motorBridge PUBLIC
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-$<INSTALL_INTERFACE:include/turtlebot_motorBridge>
+target_compile_features(ros2_control_demo_example_2 PUBLIC cxx_std_17)
+target_include_directories(ros2_control_demo_example_2 PUBLIC
+$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware/include>
+$<INSTALL_INTERFACE:include/ros2_control_demo_example_2>
 )
 ament_target_dependencies(
-  turtlebot_motorBridge PUBLIC
+  ros2_control_demo_example_2 PUBLIC
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 
-# Include directories
-#include_directories(include)
-
-# Add executable
-#add_executable(low_level_bridge src/low_level_bridge.cpp)
-
-# Link libraries
-#ament_target_dependencies(low_level_bridge 
-#  rclcpp 
-#  std_msgs 
-#  tf2 
-#  tf2_geometry_msgs
-#  Boost
-#)
+# Causes the visibility macros to use dllexport rather than dllimport,
+# which is appropriate when building the dll but not consuming it.
+target_compile_definitions(${PROJECT_NAME} PRIVATE "ROS2_CONTROL_DEMO_EXAMPLE_2_BUILDING_DLL")
 
 # Export hardware plugins
-pluginlib_export_plugin_description_file(hardware_interface turtlebot_motorBridge.xml)
+pluginlib_export_plugin_description_file(hardware_interface ros2_control_demo_example_2.xml)
 
-install(TARGETS
-  turtlebot_motorBridge
-  DESTINATION lib/${PROJECT_NAME})
-
-install(DIRECTORY launch/
-  DESTINATION share/${PROJECT_NAME}/launch
+# INSTALL
+install(
+  DIRECTORY hardware/include/
+  DESTINATION include/ros2_control_demo_example_2
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # The following line skips the linter which checks for copyrights
-  # Comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # The following line skips cpplint (only works in a git repo)
-  # Comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+install(TARGETS ros2_control_demo_example_2
+  EXPORT export_ros2_control_demo_example_2
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
+## EXPORTS
+ament_export_targets(export_ros2_control_demo_example_2 HAS_LIBRARY_TARGET)
+ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_package()
