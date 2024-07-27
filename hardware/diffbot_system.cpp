@@ -135,8 +135,8 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   RCLCPP_INFO(rclcpp::get_logger(NODE_NAME), "Starting Controller...");
-
-  //send pid values! not necessary atm but do it!
+  
+  espComms.clearEncoders(); //clear encoder count
 
   RCLCPP_INFO(rclcpp::get_logger(NODE_NAME), "Successfully activated!");
 

@@ -85,6 +85,20 @@ class EspComms
             }
         }
 
+        void clearEncoders() {
+            SerialMessage_t serial_msg;
+            serial_msg.type = RESET_ENCODERS;
+
+            if (!enqueueMessage(serial_msg)) {
+                RCLCPP_WARN(rclcpp::get_logger(NODE_NAME), "Unable to enqueue message.");
+            }
+
+             SerialMessage_t msg;
+            if (message_queue_.pop(msg)) {
+                sendSerialData(msg);
+            }
+        }
+
         void sendSerialData(const SerialMessage_t& msg) {
             std::array<uint8_t, SIZE_OF_TX_DATA> buffer;
 
