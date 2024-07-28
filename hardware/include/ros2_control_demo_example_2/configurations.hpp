@@ -17,6 +17,12 @@
 #define NODE_NAME "turtlebot_motorBridge"
 #define PARENT_FRAME_ID "base_link"
 
+// Vel PID configuration
+#define VEL_KP 60.0
+#define VEL_KI 1.0
+#define VEL_KD 0.05
+#define VEL_I_WINDUP 100.0
+
 typedef enum {
     VEL_CMD = 1,
     PID_CMD = 3,
@@ -37,8 +43,16 @@ typedef struct {
 } Motor;
 
 typedef struct {
+    double kp = 0;
+    double ki = 0;
+    double kd = 0;
+    double i_windup = 0;
+} Pid;
+
+typedef struct {
     Motor leftWheel;
     Motor rightWheel;
+    Pid pid;
     int baud_rate = BAUD_RATE;
     int enc_counts_per_rev = 660;
     int timeout = 1000;

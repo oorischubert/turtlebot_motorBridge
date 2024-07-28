@@ -19,7 +19,14 @@ class EspComms
         void init(Vehicle& turtlebot) {
         serial_.open(turtlebot.device);
         serial_.set_option(boost::asio::serial_port_base::baud_rate(turtlebot.baud_rate));
-        // Optionally start the serial communication thread
+
+    }
+
+    void initPid(Vehicle& turtlebot, double kp, double ki, double kd, double i_windup) {
+        turtlebot.pid.kp = kp;
+        turtlebot.pid.ki = ki;
+        turtlebot.pid.kd = kd;
+        turtlebot.pid.i_windup = i_windup;
     }
 
         void stop() {
@@ -88,6 +95,25 @@ class EspComms
         void clearEncoders() {
             SerialMessage_t serial_msg;
             serial_msg.type = RESET_ENCODERS;
+
+            if (!enqueueMessage(serial_msg)) {
+                RCLCPP_WARN(rclcpp::get_logger(NODE_NAME), "Unable to enqueue message.");
+            }
+
+             SerialMessage_t msg;
+            if (message_queue_.pop(msg)) {
+                sendSerialData(msg);
+            }
+        }
+
+        void setPid(Vehicle& turtlebot) {
+            SerialMessage_t serial_msg;
+            serial_msg.type = PID_CMD;
+
+            packFloatIntoArray(serial_msg.data, turtlebot.pid.kp, 0);
+            packFloatIntoArray(serial_msg.data, turtlebot.pid.ki, 4);
+            packFloatIntoArray(serial_msg.data, turtlebot.pid.kd, 8);
+            packFloatIntoArray(serial_msg.data, turtlebot.pid.i_windup, 12);
 
             if (!enqueueMessage(serial_msg)) {
                 RCLCPP_WARN(rclcpp::get_logger(NODE_NAME), "Unable to enqueue message.");

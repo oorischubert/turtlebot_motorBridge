@@ -55,6 +55,8 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_init(
       throw;
   } 
 
+    espComms.initPid(turtlebot,VEL_KP,VEL_KI,VEL_KD,VEL_I_WINDUP); //set PID values
+
     //Error fishing:
     for (const hardware_interface::ComponentInfo & joint : info_.joints)
     {
@@ -137,6 +139,7 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_activate(
   RCLCPP_INFO(rclcpp::get_logger(NODE_NAME), "Starting Controller...");
   
   espComms.clearEncoders(); //clear encoder count
+  //espComms.setPid(turtlebot); //set PID values
 
   RCLCPP_INFO(rclcpp::get_logger(NODE_NAME), "Successfully activated!");
 
@@ -152,7 +155,7 @@ hardware_interface::CallbackReturn DiffBotSystemHardware::on_deactivate(
 }
 
 hardware_interface::return_type DiffBotSystemHardware::read(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & period)
+  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
     espComms.motorReadCallBack(turtlebot);
 
