@@ -54,7 +54,7 @@ typedef struct {
     Motor rightWheel;
     Pid pid;
     int baud_rate = BAUD_RATE;
-    int enc_counts_per_rev = 660;
+    int enc_counts_per_rev = 410;
     int timeout = 1000;
     double rads_per_count = 0;
     float loop_rate = 30;
